@@ -1,8 +1,7 @@
 ### File: minimax.py
 ### Classes defined: MinimaxPlayer
 
-### using ... import * gave me an error in VS Code so I did the following instead
-from konane import Konane, Player, RandomPlayer
+from konane import *
 
 class MinimaxPlayer(Konane, Player):
     """
@@ -17,18 +16,46 @@ class MinimaxPlayer(Konane, Player):
     def getMove(self, board):
         moves = self.generateMoves(board, self.side)
         if len(moves) == 0:
-            return float("inf")
-        elif self.openingMove(board):
-            return moves[0]
+            return []
+        value = self.minimax(board, self.limit, True)
+        print(value)
+        for move in moves:
+            if value == self.eval(self.nextBoard(board, self.side, move)):
+                return move
+        return []
+    def minimax(self, board, depth, isMax):
+        if depth == 0:
+            return self.eval(board)
+        elif isMax:
+            return self.maximize(board, depth)
         else:
-            return eval(self, board, moves)
-    def eval(self, board, moves):
-        return moves[0]
-        #complete this – this will be your evaluation function. High
-        # values should be good for max.
+            return self.minimize(board, depth)
+    def maximize(self, board, depth):
+        value = -float("inf")
+        moves = self.generateMoves(board, self.side)
+        if (len(moves) == 0):
+            return float("inf")
+        for move in moves:
+            value = max(self.minimax(self.nextBoard(board, self.opponent(self.side), move),
+                        depth - 1, False), value)
+        return value
+    def minimize(self, board, depth):
+        value = float("inf")
+        moves = self.generateMoves(board, self.opponent(self.side))
+        if (len(moves) == 0):
+            return -float("inf")
+        for move in moves:
+            value = min(self.minimax(self.nextBoard(board, self.side, move),
+                        depth - 1, True), value)
+        return value
+    def eval(self, board):
+        return len(self.generateMoves(board, self.side))
+
+    ############# looking too far, take a step back and stop recursing before stepping down
+    #############   into a terminal state and getting inf or -inf for len(generateMoves)
 
 
-### Need these lines in this file in order to test the MinimaxPlayer class
-### Comment out these lines in the konane.py file so it's not run twice
-game = Konane(4)
-game.playNGames(1, MinimaxPlayer(4, 1), RandomPlayer(4), 1)
+# Need these lines in this file in order to test the MinimaxPlayer class
+# Comment out these lines in the konane.py file so it's not run twice
+game = Konane(8)
+game.playNGames(1, MinimaxPlayer(8, 2), SimplePlayer(8), 1)
