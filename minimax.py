@@ -22,7 +22,7 @@ class MinimaxPlayer(Konane, Player):
         bestMove = []
         for move in moves:
             temp = self.minimax(self.nextBoard(board, self.side, move),
-                self.limit - 2, False)
+                self.limit - 1, False)
             if (temp > value):
                 value = temp
                 bestMove = move
@@ -38,7 +38,7 @@ class MinimaxPlayer(Konane, Player):
         value = -float("inf")
         moves = self.generateMoves(board, self.side)
         if (len(moves) == 0):
-            return self.eval(board)
+            return value
         for move in moves:
             value = max(self.minimax(self.nextBoard(board, self.side, move),
                         depth - 1, False), value)
@@ -47,7 +47,7 @@ class MinimaxPlayer(Konane, Player):
         value = float("inf")
         moves = self.generateMoves(board, self.opponent(self.side))
         if (len(moves) == 0):
-            return self.eval(board)
+            return value
         for move in moves:
             value = min(self.minimax(self.nextBoard(board, self.opponent(self.side), move),
                         depth - 1, True), value)
