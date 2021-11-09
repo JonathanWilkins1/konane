@@ -21,37 +21,46 @@ class MinimaxPlayer(Konane, Player):
         value = -float("inf")
         bestMove = []
         for move in moves:
-            temp = self.minimax(self.nextBoard(board, self.side, move),
-                self.limit - 1, False)
-            if (temp > value):
-                value = temp
+            lisp = self.minimax(self.nextBoard(board, self.side, move),
+                self.limit - 1, False, -float("inf"), float("inf"))
+            if (lisp[0] > value):
+                value = lisp[0]
                 bestMove = move
         return bestMove
-    def minimax(self, board, depth, isMax):
+    def minimax(self, board, depth, isMax, alpha, beta):
         if depth == 0:
-            return self.eval(board)
+            return [self.eval(board), alpha, beta]
+            # return lisp[0] if (depth == self.limit - 1) else lisp
         elif isMax:
-            return self.maximize(board, depth)
+            return self.maximize(board, depth, alpha, beta)
+            # return lisp[0] if (depth == self.limit - 1) else lisp
         else:
-            return self.minimize(board, depth)
-    def maximize(self, board, depth):
+            return self.minimize(board, depth, alpha, beta)
+            # return lisp[0] if (depth == self.limit - 1) else lisp
+    def maximize(self, board, depth, alpha, beta):
         value = -float("inf")
         moves = self.generateMoves(board, self.side)
         if (len(moves) == 0):
-            return value
+            return [value, alpha, value]
         for move in moves:
-            value = max(self.minimax(self.nextBoard(board, self.side, move),
-                        depth - 1, False), value)
-        return value
-    def minimize(self, board, depth):
+            lisp = self.minimax(self.nextBoard(board, self.side, move),
+                        depth - 1, False, alpha, beta)
+            value = max(lisp[0], value)
+            if (value >= beta):
+                break
+        return [value, alpha, value]
+    def minimize(self, board, depth, alpha, beta):
         value = float("inf")
         moves = self.generateMoves(board, self.opponent(self.side))
         if (len(moves) == 0):
-            return value
+            return [value, value, beta]
         for move in moves:
-            value = min(self.minimax(self.nextBoard(board, self.opponent(self.side), move),
-                        depth - 1, True), value)
-        return value
+            lisp = self.minimax(self.nextBoard(board, self.opponent(self.side), move),
+                        depth - 1, True, alpha, beta)
+            value = min(lisp[0], value)
+            if (value <= alpha):
+                break
+        return [value, value, beta]
     def eval(self, board):
         value = len(self.generateMoves(board, self.side))
         for r in range(len(board)):
